@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
-import router from './src/routes.js';
-import dbConnection from './db/dbConnection.js';
-import importData from './db/dbCreation.js';
+import dbConnection from './src/db/dbConnection.js';
+import importData from './src/db/dbCreation.js';
+import albums from './src/routes/albums.js';
+import artists from './src/routes/artists.js';
+import songs from './src/routes/songs.js';
 
 const app = express();
 
@@ -13,7 +15,9 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('/', router);
+app.use('/', songs);
+app.use('/', albums);
+app.use('/', artists);
 
 
 dotenv.config();

@@ -1,7 +1,7 @@
 import fs from 'fs';
-import Artist from '../db/artist.js';
-import Album from '../db/album.js';
-import Song from '../db/song.js';
+import Artist from './artist.js';
+import Album from './album.js';
+import Song from './song.js';
 
 async function importData() {
   const data = JSON.parse(fs.readFileSync('./assets/data.json', 'utf8'));
