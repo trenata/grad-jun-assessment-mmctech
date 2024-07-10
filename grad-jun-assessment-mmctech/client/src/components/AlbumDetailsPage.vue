@@ -10,8 +10,10 @@
 </template>
   
 <script>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { fetchAlbum, fetchSongsFromAlbum } from '@/services/api.js';
+import { useRoute } from 'vue-router'
+
 
 export default {
   name: 'AlbumDetailsPage',
@@ -22,8 +24,18 @@ export default {
     },
   },
   setup(props) {
+    const route = useRoute()
+    
     const album = ref();
     const songs = ref();
+
+    watch(
+      () => route.params.albumId,
+      async () => {
+        album.value = await fetchAlbum(props.albumId); 
+        songs.value = await fetchSongsFromAlbum(props.albumId);
+      }
+    )
     
     onBeforeMount(async () => {
       album.value = await fetchAlbum(props.albumId); 

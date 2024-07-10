@@ -8,6 +8,7 @@ import importData from './src/db/dbCreation.js';
 import albums from './src/routes/albums.js';
 import artists from './src/routes/artists.js';
 import songs from './src/routes/songs.js';
+import search from './src/routes/search.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use('/', songs);
 app.use('/', albums);
 app.use('/', artists);
+app.use('/', search);
 
 
 dotenv.config();

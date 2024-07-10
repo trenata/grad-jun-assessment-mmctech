@@ -41,3 +41,13 @@ export const fetchSongsFromAlbum = async (albumId) => {
     throw error;
   }
 };
+
+export const fetchSearchResults = async (searchInput) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/search`, { params: { input: searchInput } });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all artists:', error);
+    throw error;
+  }
+};
