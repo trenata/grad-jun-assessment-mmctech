@@ -52,12 +52,6 @@ import { useRoute } from 'vue-router'
   
 export default {
   name: 'SearchPage',
-  props: {
-    artistId: {
-      type: String,
-      required: true
-    },
-  },
   setup() {
     const route = useRoute();
     const results = ref(null);

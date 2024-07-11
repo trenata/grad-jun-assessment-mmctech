@@ -71,3 +71,40 @@ export const fetchSearchResults = async (searchInput) => {
     throw error;
   }
 };
+
+export const addNewSong = async (newSong) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/songs`, newSong);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching songs from album:', error);
+    throw error;
+  }
+};
+
+export const editSong = async (songId, newSong) => {
+  try {
+    const dataToSend = {};
+    if (newSong.title) {
+      dataToSend.title = newSong.title;
+    }
+    if (newSong.length) {
+      dataToSend.length = newSong.length;
+    }
+    const response = await axios.put(`${API_BASE_URL}/songs/${songId}`, dataToSend);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching songs from album:', error);
+    throw error;
+  }
+};
+
+export const deleteSong = async (songId) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/songs/${songId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching songs from album:', error);
+    throw error;
+  }
+};
