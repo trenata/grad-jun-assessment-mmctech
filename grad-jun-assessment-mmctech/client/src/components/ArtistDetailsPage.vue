@@ -6,8 +6,8 @@
       <h2>{{ album.title }}</h2>
       <div class="container">
         <div class="left-side card">
-          <div v-for="song in getAlbumSongs(album._id)" :key="song._id" class="songs-container">
-            <span>{{ song.title }}</span> 
+          <div v-for="(song, index) in getAlbumSongs(album._id)" :key="song._id" class="songs-container">
+            <span>{{ index + 1 }}. {{ song.title }}</span> 
             <span>{{ song.length }}</span>
           </div>
         </div>
@@ -103,6 +103,7 @@ export default {
   justify-content: space-between;
   border-bottom: 1px solid black;
   margin: 1rem 4rem;
+  height: 2rem;
 }
 
 .description {

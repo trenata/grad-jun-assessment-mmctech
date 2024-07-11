@@ -48,7 +48,7 @@
     <div v-if="showModalDelete" class="modal">
       <div class="modal-content">
         <span class="close" @click="showModalDelete = false">&times;</span>
-        <h2>Delete Song {{ chosenSongName }}?</h2>
+        <h2>Delete Song "{{ chosenSongName }}"?</h2>
         <form @submit.prevent="del(chosenSongId)">
           <button type="submit" class="btn btn-danger">Yes</button>
           <button type="button" @click="showModalDelete = false" class="btn btn-secondary">No</button>
@@ -258,13 +258,14 @@ export default {
 }
 
 .song-length {
-  padding-right: 1rem;
+  padding-right: 0.5rem;
 }
+
 .btn-icon {
   align-items: center;
   background-color: #e6f2ec;
   border: none;
-  padding: 10px 0;
+  padding: 0 3px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
@@ -273,7 +274,6 @@ export default {
 .icon {
   width: 20px;
   height: 20px;
-  margin-right: 8px;
 }
 
 .songs-button-container {
@@ -309,6 +309,8 @@ export default {
   justify-content: space-between;
   border-bottom: 1px solid black;
   margin: 1rem 4rem;
+  align-items: center;
+  height: 2rem;
 }
 
 .description {
@@ -339,7 +341,7 @@ export default {
   padding: 20px;
   border: 1px solid #888;
   border-radius: 10px;
-  width: 50%;
+  width: 25%;
 }
 
 .close {

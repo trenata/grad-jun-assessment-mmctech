@@ -120,8 +120,6 @@ router.put('/songs/:songId', async (req, res) => {
                 length = undefined;
             }
         }
-        
-        console.log(length)
 
         const song = await Song.findByIdAndUpdate(songId, { title, length }, { new: true });
 
