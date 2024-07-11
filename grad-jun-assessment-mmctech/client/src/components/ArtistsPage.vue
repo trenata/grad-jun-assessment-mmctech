@@ -39,8 +39,12 @@ export default {
     };
 
     onBeforeMount(async () => {
-      albums.value = await fetchAllAlbums(); 
-      artists.value = await fetchAllArtists(); 
+      try {
+        albums.value = await fetchAllAlbums(); 
+        artists.value = await fetchAllArtists(); 
+      } catch (err) {
+        console.log('Error: ', err);
+      }
     });
 
     return {

@@ -39,12 +39,16 @@ export default {
   const songsMap = ref(new Map());
 
   const loadArtistData = async (artistId) => {
-    artist.value = await fetchArtist(artistId);
-    albums.value = await fetchArtistAlbums(artistId);
-    
-    for (const album of albums.value) {
-      const albumSongs = await fetchSongsFromAlbum(album._id);
-      songsMap.value.set(album._id, albumSongs);
+    try {
+      artist.value = await fetchArtist(artistId);
+      albums.value = await fetchArtistAlbums(artistId);
+      
+      for (const album of albums.value) {
+        const albumSongs = await fetchSongsFromAlbum(album._id);
+        songsMap.value.set(album._id, albumSongs);
+      }
+    } catch (err) {
+      console.log('Error: ', err);
     }
   };
 
@@ -55,12 +59,20 @@ export default {
   watch(
     () => route.params.artistId,
     async () => {
+      try {
         await loadArtistData(props.artistId);
+      } catch (err) {
+        console.log('Error: ', err);
       }
+    }
   )
   
   onBeforeMount(async () => {
-    await loadArtistData(props.artistId);
+    try {
+      await loadArtistData(props.artistId);
+    } catch (err) {
+      console.log('Error: ', err);
+    }
   })
 
   return {

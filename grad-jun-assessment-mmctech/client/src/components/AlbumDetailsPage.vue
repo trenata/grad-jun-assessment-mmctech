@@ -116,15 +116,6 @@ export default {
       album: null,
     });
 
-    watch(
-      () => route.params.albumId,
-      async () => {
-        album.value = await fetchAlbum(props.albumId); 
-        songs.value = await fetchSongsFromAlbum(props.albumId);
-        artist.value = await fetchArtist(album.value.artist);
-      }
-    )
-
     const clickedAddNewButton = () => {
       showModalAddNew.value = true;
       crudSong.title = '';
@@ -152,31 +143,61 @@ export default {
         return;
       }
 
-      await addNewSong(crudSong);
-      songs.value = await fetchSongsFromAlbum(props.albumId); 
-      showModalAddNew.value = false;
-      missingData.value = false;
+      try {
+        await addNewSong(crudSong);
+        songs.value = await fetchSongsFromAlbum(props.albumId); 
+        showModalAddNew.value = false;
+        missingData.value = false;
+      } catch (err) {
+        console.log('Error: ', err);
+      }
+      
     };
 
     const edit = async (songId) => {
-      await editSong(songId, crudSong);
-      songs.value = await fetchSongsFromAlbum(props.albumId); 
-      showModalEdit.value = false;
+      try {
+        await editSong(songId, crudSong);
+        songs.value = await fetchSongsFromAlbum(props.albumId); 
+        showModalEdit.value = false;
+      } catch (err) {
+        console.log('Error: ', err);
+      }
     };
 
     const del = async (songId) => {
       crudSong.title = '';
       crudSong.length = '';
-      await deleteSong(songId);
-      songs.value = await fetchSongsFromAlbum(props.albumId); 
-      showModalDelete.value = false;
+      try {
+        await deleteSong(songId);
+        songs.value = await fetchSongsFromAlbum(props.albumId); 
+        showModalDelete.value = false;
+      } catch (err) {
+        console.log('Error: ', err);
+      }
     };
 
+    watch(
+      () => route.params.albumId,
+      async () => {
+        try {
+          album.value = await fetchAlbum(props.albumId); 
+          songs.value = await fetchSongsFromAlbum(props.albumId);
+          artist.value = await fetchArtist(album.value.artist);
+        } catch (err) {
+          console.log('Error: ', err);
+        }
+      }
+    )
+
     onBeforeMount(async () => {
-      album.value = await fetchAlbum(props.albumId); 
-      songs.value = await fetchSongsFromAlbum(props.albumId);
-      artist.value = await fetchArtist(album.value.artist);
-      crudSong.album = album.value._id;
+      try {
+        album.value = await fetchAlbum(props.albumId); 
+        songs.value = await fetchSongsFromAlbum(props.albumId);
+        artist.value = await fetchArtist(album.value.artist);
+        crudSong.album = album.value._id;
+      } catch (err) {
+        console.log('Error: ', err);
+      }
     })
 
     return {
@@ -317,6 +338,7 @@ export default {
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
+  border-radius: 10px;
   width: 50%;
 }
 

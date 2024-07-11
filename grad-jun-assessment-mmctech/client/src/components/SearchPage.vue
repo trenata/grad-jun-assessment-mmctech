@@ -47,7 +47,6 @@
 <script> 
 import { onBeforeMount, ref, watch } from 'vue';
 import { fetchSearchResults, fetchArtist, fetchAlbum } from '@/services/api.js';
-  
 import { useRoute } from 'vue-router'
   
 export default {
@@ -59,43 +58,60 @@ export default {
     const artistNamesSongs = ref({});
 
     const fetchArtistName = async (artistId) => {
-      if (!artistNames.value[artistId]) {
-        const artist = await fetchArtist(artistId);
-        artistNames.value[artistId] = artist.name;
+      try {
+        if (!artistNames.value[artistId]) {
+          const artist = await fetchArtist(artistId);
+          artistNames.value[artistId] = artist.name;
+        }
+      } catch (err) {
+        console.log('Error: ', err);
       }
     };
+
     const fetchArtistNameSongs = async (albumId) => {
-      if (!artistNamesSongs.value[albumId]) {
-        const album = await fetchAlbum(albumId);
-        const artist = await fetchArtist(album.artist);
-        artistNamesSongs.value[albumId] = artist.name;
+      try {
+        if (!artistNamesSongs.value[albumId]) {
+          const album = await fetchAlbum(albumId);
+          const artist = await fetchArtist(album.artist);
+          artistNamesSongs.value[albumId] = artist.name;
+        }
+      } catch (err) {
+        console.log('Error: ', err);
       }
     };
 
     watch(
       () => route.query.input,
       async () => {
-        results.value = await fetchSearchResults(route.query.input);
-
-        for (const album of results.value.albums) {
-          await fetchArtistName(album.artist);
-        }
-
-        for (const song of results.value.songs) {
-          await fetchArtistNameSongs(song.album);
+        try {
+          results.value = await fetchSearchResults(route.query.input);
+  
+          for (const album of results.value.albums) {
+            await fetchArtistName(album.artist);
+          }
+  
+          for (const song of results.value.songs) {
+            await fetchArtistNameSongs(song.album);
+          }
+        } catch (err) {
+          console.log('Error: ', err);
         }
       }
     );
 
     onBeforeMount(async () => {
-      results.value = await fetchSearchResults(route.query.input);
-
-      for (const album of results.value.albums) {
-        await fetchArtistName(album.artist);
-      }
-
-      for (const song of results.value.songs) {
-        await fetchArtistNameSongs(song.album);
+      try {
+        results.value = await fetchSearchResults(route.query.input);
+  
+        for (const album of results.value.albums) {
+          await fetchArtistName(album.artist);
+        }
+  
+        for (const song of results.value.songs) {
+          await fetchArtistNameSongs(song.album);
+        }
+      } catch (err) {
+        console.log('Error: ', err);
       }
     });
 

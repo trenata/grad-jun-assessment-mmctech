@@ -6,12 +6,14 @@ const router = express.Router();
 
 // Create
 router.post('/artists', async (req, res) => {
-    const { name } = req.body;
+    let { name } = req.body;
 
     try {
         if (!name) {
             return res.status(400).json({ message: 'Name is required' });
         }
+
+        name = name.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const artist = new Artist({ name });
         await artist.save();
@@ -40,12 +42,14 @@ router.get('/artists', async (req, res) => {
 });
 
 router.get('/artists/:artistId', async (req, res) => {
-    const { artistId } = req.params;
+    let { artistId } = req.params;
 
     try {
         if (artistId && !mongoose.Types.ObjectId.isValid(artistId)) {
             return res.status(400).json({ message: 'Invalid artistId' });
         }
+
+        artistId = artistId.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const artist = await Artist.findOne({ _id: artistId });
 
@@ -62,13 +66,16 @@ router.get('/artists/:artistId', async (req, res) => {
 
 // Update
 router.put('/artists/:artistId', async (req, res) => {
-    const { artistId } = req.params;
-    const { name } = req.body;
+    let { artistId } = req.params;
+    let { name } = req.body;
   
     try {
         if (artistId && !mongoose.Types.ObjectId.isValid(artistId)) {
             return res.status(400).json({ message: 'Invalid artistId' });
         }
+
+        artistId = artistId.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        name = name.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const artist = await Artist.findByIdAndUpdate(artistId, { name }, { new: true });
 
@@ -85,12 +92,14 @@ router.put('/artists/:artistId', async (req, res) => {
 
 // Delete
 router.delete('/artists/:artistId', async (req, res) => {
-    const { artistId } = req.params;
+    let { artistId } = req.params;
   
     try {
         if (artistId && !mongoose.Types.ObjectId.isValid(artistId)) {
             return res.status(400).json({ message: 'Invalid artistId' });
         }
+
+        artistId = artistId.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const artist = await Artist.findByIdAndDelete(artistId);
 

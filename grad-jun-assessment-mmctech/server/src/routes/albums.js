@@ -7,12 +7,16 @@ const router = express.Router();
 
 // Create
 router.post('/albums', async (req, res) => {
-    const { title, description, artist } = req.body;
+    let { title, description, artist } = req.body;
 
     try {
         if (!title || !description || !artist) {
             return res.status(400).json({ message: 'Title, description, and artist are required' });
         }
+
+        title = title.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        description = description.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        artist = artist.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         if (!mongoose.Types.ObjectId.isValid(artist)) {
             return res.status(400).json({ message: 'Invalid artist' });
@@ -35,10 +39,12 @@ router.post('/albums', async (req, res) => {
 
 // Read
 router.get('/albums', async (req, res) => {
-    const { artistId } = req.query;
+    let { artistId } = req.query;
 
     try {
         if (artistId) {
+            artistId.replace(/[^a-zA-Z0-9:\ ]/g, '');
+
             if (!mongoose.Types.ObjectId.isValid(artistId)) {
                 return res.status(400).json({ message: 'Invalid artistId' });
             }
@@ -62,12 +68,14 @@ router.get('/albums', async (req, res) => {
 });
 
 router.get('/albums/:albumId', async (req, res) => {
-    const { albumId } = req.params;
+    let { albumId } = req.params;
 
     try {
         if (albumId && !mongoose.Types.ObjectId.isValid(albumId)) {
             return res.status(400).json({ message: 'Invalid albumId' });
         }
+
+        albumId = albumId.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const album = await Album.findOne({ _id: albumId });
 
@@ -84,13 +92,17 @@ router.get('/albums/:albumId', async (req, res) => {
 
 // Update
 router.put('/albums/:albumId', async (req, res) => {
-    const { albumId } = req.params;
-    const { title, description } = req.body;
+    let { albumId } = req.params;
+    let { title, description } = req.body;
   
     try {
         if (albumId && !mongoose.Types.ObjectId.isValid(albumId)) {
             return res.status(400).json({ message: 'Invalid albumId' });
         }
+
+        albumId = albumId.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        title = title.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        description = description.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const album = await Album.findByIdAndUpdate(albumId, { title, description }, { new: true });
 
@@ -107,12 +119,14 @@ router.put('/albums/:albumId', async (req, res) => {
 
 // Delete
 router.delete('/albums/:albumId', async (req, res) => {
-    const { albumId } = req.params;
+    let { albumId } = req.params;
   
     try {
         if (albumId && !mongoose.Types.ObjectId.isValid(albumId)) {
             return res.status(400).json({ message: 'Invalid albumId' });
         }
+
+        albumId = albumId.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const album = await Album.findByIdAndDelete(albumId);
 

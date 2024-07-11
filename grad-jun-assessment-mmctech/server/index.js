@@ -26,7 +26,7 @@ dotenv.config();
 const PORT = process.env.PORT || 9000;
 
 dbConnection();
-// importData();
+importData();
 
 mongoose.connection.once('open', () => {
     app.listen(PORT, () => console.log(`server is running on port ${PORT}`));

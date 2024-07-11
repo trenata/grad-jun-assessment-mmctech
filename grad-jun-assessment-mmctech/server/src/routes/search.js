@@ -7,16 +7,18 @@ import Song from '../db/song.js';
 const router = express.Router();
 
 router.get('/search', async (req, res) => {
-    const { input } = req.query;
-
+    let { input } = req.query;
+    
     try {
         if (!input) {
             return res.status(400).json({ message: 'Search input is required' });
         }
-        
-        const artists = await Artist.find({ name: new RegExp(input, 'i') });
-        const albums = await Album.find({ title: new RegExp(input, 'i') });
-        const songs = await Song.find({ title: new RegExp(input, 'i') });
+        const sanitizedInput = input.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        new RegExp(input, 'i').test(sanitizedInput);
+
+        const artists = await Artist.find({ name: new RegExp(sanitizedInput, 'i') });
+        const albums = await Album.find({ title: new RegExp(sanitizedInput, 'i') });
+        const songs = await Song.find({ title: new RegExp(sanitizedInput, 'i') });
 
         
         const results = {

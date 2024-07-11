@@ -7,9 +7,17 @@ const router = express.Router();
 
 // Create
 router.post('/songs', async (req, res) => {
-    const { title, length, album } = req.body;
+    let { title, length, album } = req.body;
 
     try {
+        if (!title || !length || !album) {
+            return res.status(400).json({ message: 'Title, length, and album are required' });
+        }
+        
+        title = title.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        length = length.replace(/[^a-zA-Z0-9:\ ]/g, '');
+        album = album.replace(/[^a-zA-Z0-9:\ ]/g, '');
+
         if (!title || !length || !album) {
             return res.status(400).json({ message: 'Title, length, and album are required' });
         }
@@ -35,14 +43,18 @@ router.post('/songs', async (req, res) => {
 
 // Read
 router.get('/songs', async (req, res) => {
-    const { albumId } = req.query;
+    let { albumId } = req.query;
 
     try {
         if (albumId) {
             if (!mongoose.Types.ObjectId.isValid(albumId)) {
                 return res.status(400).json({ message: 'Invalid albumId' });
             }
+
+            albumId = albumId.replace(/[^a-zA-Z0-9:\ ]/g, '');
+
             const songAlbum = await Album.findOne({ _id: albumId });
+
             if (!songAlbum) {
                 return res.status(404).json({ message: 'Album not found' });
             }
@@ -62,12 +74,14 @@ router.get('/songs', async (req, res) => {
 });
 
 router.get('/songs/:songId', async (req, res) => {
-    const { songId } = req.params;
+    let { songId } = req.params;
 
     try {
         if (songId && !mongoose.Types.ObjectId.isValid(songId)) {
             return res.status(400).json({ message: 'Invalid songId' });
         }
+
+        songId = songId.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const song = await Song.findOne({ _id: songId });
 
@@ -84,13 +98,30 @@ router.get('/songs/:songId', async (req, res) => {
 
 // Update
 router.put('/songs/:songId', async (req, res) => {
-    const { songId } = req.params;
-    const { title, length } = req.body;
+    let { songId } = req.params;
+    let { title, length } = req.body;
   
     try {
         if (songId && !mongoose.Types.ObjectId.isValid(songId)) {
             return res.status(400).json({ message: 'Invalid songId' });
         }
+
+        songId = songId.replace(/[^a-zA-Z0-9:\ ]/g, '');
+
+        if (title) {
+            title = title.replace(/[^a-zA-Z0-9:\ ]/g, '');
+            if (!title) {
+                title = undefined;
+            }
+        }
+        if (length) {
+            length = length.replace(/[^0-9:]/g, '');
+            if (!length) {
+                length = undefined;
+            }
+        }
+        
+        console.log(length)
 
         const song = await Song.findByIdAndUpdate(songId, { title, length }, { new: true });
 
@@ -107,12 +138,14 @@ router.put('/songs/:songId', async (req, res) => {
 
 // Delete
 router.delete('/songs/:songId', async (req, res) => {
-    const { songId } = req.params;
+    let { songId } = req.params;
   
     try {
         if (songId && !mongoose.Types.ObjectId.isValid(songId)) {
             return res.status(400).json({ message: 'Invalid songId' });
         }
+
+        songId = songId.replace(/[^a-zA-Z0-9:\ ]/g, '');
 
         const song = await Song.findByIdAndDelete(songId);
 

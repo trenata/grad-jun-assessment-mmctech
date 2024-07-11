@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.VUE_APP_URL;
 
+// Fetch data
 export const fetchAllArtists = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/artists`);
@@ -72,6 +73,7 @@ export const fetchSearchResults = async (searchInput) => {
   }
 };
 
+// CRUD songs
 export const addNewSong = async (newSong) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/songs`, newSong);

@@ -14,49 +14,49 @@
       />
     <search-icon class="search-icon"/>
   </div>
-    <div v-if="results && searchInput.trim()" class="result-panel">
-      <h3>Songs</h3>
-      <div v-if="results.songs.length" class="result-container">
-        <div
-          v-for="(song, index) in limitElements(results.songs)"
-          :key="song._id"
-          :class="{ highlighted: isHighlighted(index) }"
-          @mouseenter="highlightedIndex = index"
-          @click.prevent="resultClicked(index)"
-        >
-          {{ song.title }}
-        </div>
+  <div v-if="results && searchInput.trim()" class="result-panel">
+    <h3>Songs</h3>
+    <div v-if="results.songs.length" class="result-container">
+      <div
+        v-for="(song, index) in limitElements(results.songs)"
+        :key="song._id"
+        :class="{ highlighted: isHighlighted(index) }"
+        @mouseenter="highlightedIndex = index"
+        @click.prevent="resultClicked(index)"
+      >
+        {{ song.title }}
       </div>
-      <p v-else>No songs found.</p>
-
-      <h3>Albums</h3>
-      <div v-if="results.albums.length" class="result-container">
-        <div
-          v-for="(album, index) in limitElements(results.albums)"
-          :key="album._id"
-          :class="{ highlighted: isHighlighted(index + Math.min(results.songs.length, 4)) }"
-          @mouseenter="highlightedIndex = index + Math.min(results.songs.length, 4)"
-          @click.prevent="resultClicked(index + Math.min(results.songs.length, 4))"
-        >
-          {{ album.title }}
-        </div>
-      </div>
-      <p v-else>No albums found.</p>
-
-      <h3>Artists</h3>
-      <div v-if="results.artists.length" class="result-container">
-        <div
-          v-for="(artist, index) in limitElements(results.artists)"
-          :key="artist._id"
-          :class="{ highlighted: isHighlighted(index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4)) }"
-          @mouseenter="highlightedIndex = index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4)"
-          @click.prevent="resultClicked(index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4))"
-        >
-          {{ artist.name }}
-        </div>
-      </div>
-      <p v-else>No artists found.</p>
     </div>
+    <p v-else>No songs found.</p>
+
+    <h3>Albums</h3>
+    <div v-if="results.albums.length" class="result-container">
+      <div
+        v-for="(album, index) in limitElements(results.albums)"
+        :key="album._id"
+        :class="{ highlighted: isHighlighted(index + Math.min(results.songs.length, 4)) }"
+        @mouseenter="highlightedIndex = index + Math.min(results.songs.length, 4)"
+        @click.prevent="resultClicked(index + Math.min(results.songs.length, 4))"
+      >
+        {{ album.title }}
+      </div>
+    </div>
+    <p v-else>No albums found.</p>
+
+    <h3>Artists</h3>
+    <div v-if="results.artists.length" class="result-container">
+      <div
+        v-for="(artist, index) in limitElements(results.artists)"
+        :key="artist._id"
+        :class="{ highlighted: isHighlighted(index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4)) }"
+        @mouseenter="highlightedIndex = index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4)"
+        @click.prevent="resultClicked(index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4))"
+      >
+        {{ artist.name }}
+      </div>
+    </div>
+    <p v-else>No artists found.</p>
+  </div>
   </div>
 </template>
 
@@ -81,23 +81,13 @@ export default {
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    watch(
-      () => shouldDeleteSearchInput.value,
-      async () => {
-        if (shouldDeleteSearchInput.value) {
-          await sleep(200);
-          searchInput.value = '';
-        }
-      }
-    )
-
     const performSearch = debounce(async () => {
       if (searchInput.value.trim()) {
         try {
           results.value = await fetchSearchResults(searchInput.value);
           highlightedIndex.value = -1;
         } catch (error) {
-          console.error('Search error:', error);
+          console.error('Error:', error);
         }
       } else {
         results.value = null;
@@ -165,6 +155,20 @@ export default {
       return list.slice(0, 4);
     }
 
+    watch(
+      () => shouldDeleteSearchInput.value,
+      async () => {
+        if (shouldDeleteSearchInput.value) {
+          try {
+            await sleep(200);
+            searchInput.value = '';
+          } catch (err) {
+            console.log('Error: ', err);
+          }
+        }
+      }
+    )
+
     return {
       searchInput,
       shouldDeleteSearchInput,
@@ -216,13 +220,15 @@ input {
 
 .result-panel {
   position: absolute;
-    left: 86px;
-    top: 67px;
-    background-color: #e6f2ec;
-    width: 25.5rem;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    padding: 0 2rem 1rem 2rem;
+  left: 86px;
+  top: 67px;
+  background-color: #e6f2ec;
+  width: 25.5rem;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 0 2rem 1rem 2rem;
+  border-style: solid;
+  border-width: 1px;
 }
 
 h3 {
