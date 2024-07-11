@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="search-bar">
+    <div class="search-container">
     <input
       type="text"
       placeholder="Search songs, albums or srtists"
@@ -8,66 +9,87 @@
       @keydown.up.prevent="navigateResults(-1)"
       @keydown.down.prevent="navigateResults(1)"
       @keydown.enter.prevent="selectResult"
-    />
-    <div v-if="results && searchInput.trim()">
-      <h2>Songs</h2>
-      <ul v-if="results.songs.length">
-        <li
-          v-for="(song, index) in results.songs"
+      @blur="shouldDeleteSearchInput = true"
+      @focus="shouldDeleteSearchInput = false"
+      />
+    <search-icon class="search-icon"/>
+  </div>
+    <div v-if="results && searchInput.trim()" class="result-panel">
+      <h3>Songs</h3>
+      <div v-if="results.songs.length" class="result-container">
+        <div
+          v-for="(song, index) in limitElements(results.songs)"
           :key="song._id"
           :class="{ highlighted: isHighlighted(index) }"
           @mouseenter="highlightedIndex = index"
           @click.prevent="resultClicked(index)"
         >
           {{ song.title }}
-        </li>
-      </ul>
+        </div>
+      </div>
       <p v-else>No songs found.</p>
 
-      <h2>Albums</h2>
-      <ul v-if="results.albums.length">
-        <li
-          v-for="(album, index) in results.albums"
+      <h3>Albums</h3>
+      <div v-if="results.albums.length" class="result-container">
+        <div
+          v-for="(album, index) in limitElements(results.albums)"
           :key="album._id"
-          :class="{ highlighted: isHighlighted(index + results.songs.length) }"
-          @mouseenter="highlightedIndex = index + results.songs.length"
-          @click.prevent="resultClicked(index + results.songs.length)"
+          :class="{ highlighted: isHighlighted(index + Math.min(results.songs.length, 4)) }"
+          @mouseenter="highlightedIndex = index + Math.min(results.songs.length, 4)"
+          @click.prevent="resultClicked(index + Math.min(results.songs.length, 4))"
         >
           {{ album.title }}
-        </li>
-      </ul>
+        </div>
+      </div>
       <p v-else>No albums found.</p>
 
-      <h2>Artists</h2>
-      <ul v-if="results.artists.length">
-        <li
-          v-for="(artist, index) in results.artists"
+      <h3>Artists</h3>
+      <div v-if="results.artists.length" class="result-container">
+        <div
+          v-for="(artist, index) in limitElements(results.artists)"
           :key="artist._id"
-          :class="{ highlighted: isHighlighted(index + results.songs.length + results.albums.length) }"
-          @mouseenter="highlightedIndex = index + results.songs.length + results.albums.length"
-          @click.prevent="resultClicked(index + results.songs.length + results.albums.length)"
+          :class="{ highlighted: isHighlighted(index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4)) }"
+          @mouseenter="highlightedIndex = index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4)"
+          @click.prevent="resultClicked(index + Math.min(results.songs.length, 4) + Math.min(results.albums.length, 4))"
         >
           {{ artist.name }}
-        </li>
-      </ul>
+        </div>
+      </div>
       <p v-else>No artists found.</p>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import debounce from 'lodash/debounce';
 import { fetchSearchResults } from '@/services/api.js'
 import { useRouter } from 'vue-router'
+import { SearchIcon } from '@heroicons/vue/solid';
 
 export default {
+  components: {
+    SearchIcon,
+  },
   setup() {
     const router = useRouter();
     
     const searchInput = ref('');
+    const shouldDeleteSearchInput = ref(false);
     const results = ref(null);
     const highlightedIndex = ref(-1);
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    watch(
+      () => shouldDeleteSearchInput.value,
+      async () => {
+        if (shouldDeleteSearchInput.value) {
+          await sleep(200);
+          searchInput.value = '';
+        }
+      }
+    )
 
     const performSearch = debounce(async () => {
       if (searchInput.value.trim()) {
@@ -86,21 +108,20 @@ export default {
     const navigateResults = (step) => {
       if (!results.value) return;
       
-      const totalSongs = results.value.songs.length;
-      const totalAlbums = results.value.albums.length;
-      const totalArtists = results.value.artists.length;
+      const totalSongs = Math.min(results.value.songs.length, 4);
+      const totalAlbums = Math.min(results.value.albums.length, 4);
+      const totalArtists = Math.min(results.value.artists.length, 4);
       const totalResults = totalSongs + totalAlbums + totalArtists;
 
       if (totalResults === 0) return;
 
-      highlightedIndex.value = (highlightedIndex.value + step) % totalResults;
+      highlightedIndex.value = (highlightedIndex.value + step + totalResults) % totalResults;
 
       if (highlightedIndex.value < totalSongs) {
         searchInput.value = results.value.songs[highlightedIndex.value].title
       } else if (highlightedIndex.value < totalSongs + totalAlbums) {
         searchInput.value = results.value.albums[highlightedIndex.value - totalSongs].title
       } else {
-        console.log(results.value.artists, highlightedIndex.value )
         searchInput.value = results.value.artists[highlightedIndex.value - totalSongs - totalAlbums].name
       }
     }
@@ -108,11 +129,12 @@ export default {
     const selectResult = async () => {
       if (highlightedIndex.value === -1 || !results.value) {
         router.push({name: 'SearchPage', query: { input: searchInput.value } });
+        searchInput.value = '';
         return;
       }
 
-      const totalSongs = results.value.songs.length;
-      const totalAlbums = results.value.albums.length;
+      const totalSongs = Math.min(results.value.songs.length, 4);
+      const totalAlbums = Math.min(results.value.albums.length, 4);
 
       if (highlightedIndex.value < totalSongs) {
         router.push({name: 'AlbumDetailsPage', params: { 
@@ -127,6 +149,7 @@ export default {
           artistId: results.value.artists[highlightedIndex.value - totalSongs - totalAlbums]._id 
         } });
       }
+      searchInput.value = '';
     }
     
     const resultClicked = (index) => {
@@ -138,20 +161,76 @@ export default {
       return highlightedIndex.value === index;
     }
       
+    const limitElements = (list) => {
+      return list.slice(0, 4);
+    }
+
     return {
       searchInput,
+      shouldDeleteSearchInput,
       results,
       performSearch,
       navigateResults,
       selectResult,
       resultClicked,
       isHighlighted,
+      limitElements,
     }
   },
 }
 </script> 
+
 <style scoped>
-li.highlighted {
-  background-color: #f0f0f0;
+.result-container {
+  margin-left: 1.5rem;
+  cursor: pointer;
+}
+
+.search-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 3rem;
+  margin-left: 4rem;
+}
+
+.search-icon {
+  width: 20px;
+  position: absolute;
+  top: 8px;
+  right: 12px;
+}
+
+.highlighted {
+  background-color: #6d9773;
+  border-radius: 5px;
+    padding-left: 1rem;
+}
+
+input {
+  width: 30rem;
+  height: 2rem;
+  border-radius: 50px;
+  padding-left: 1rem;
+  background: #e6f2ec;
+}
+
+.result-panel {
+  position: absolute;
+    left: 86px;
+    top: 67px;
+    background-color: #e6f2ec;
+    width: 25.5rem;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 0 2rem 1rem 2rem;
+}
+
+h3 {
+  font-size: medium;
+  margin-bottom: 0.5rem;
+}
+
+h3, p, div {
+  color: #0c3b2e;
 }
 </style>
